@@ -1,7 +1,7 @@
 services:
   db:
     image: mysql:8.0
-    container_name: ${NAME}_db
+    container_name: ${WPDEV_NAME}_db
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: wordpress
@@ -20,7 +20,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: ${NAME}_wordpress
+    container_name: ${WPDEV_NAME}_wordpress
     restart: unless-stopped
     depends_on:
       db:
@@ -39,7 +39,7 @@ services:
 
   nginx:
     image: nginx:alpine
-    container_name: ${NAME}_nginx
+    container_name: ${WPDEV_NAME}_nginx
     restart: unless-stopped
     depends_on:
       - wordpress
@@ -51,7 +51,7 @@ services:
 
   mailpit:
     image: axllent/mailpit
-    container_name: ${NAME}_mailpit
+    container_name: ${WPDEV_NAME}_mailpit
     restart: unless-stopped
     ports:
       - "${MAILPIT_UI_PORT}:8025"

@@ -80,7 +80,7 @@ cmd_new() {
 
     # Create .env file with variables
     cat > "$site_dir/.env" << EOF
-NAME=$name
+WPDEV_NAME=$name
 PORT=$port
 MAILPIT_UI_PORT=$mailpit_ui_port
 MAILPIT_SMTP_PORT=$mailpit_smtp_port
@@ -161,7 +161,7 @@ cmd_list() {
                 # Check if containers are running
                 cd "$site_dir"
                 local status="stopped"
-                if docker compose ps --status running 2>/dev/null | grep -q "${name}_wordpress"; then
+                if docker compose ps --status running 2>/dev/null | grep -q "${WPDEV_NAME}_wordpress"; then
                     status="running"
                 fi
 
