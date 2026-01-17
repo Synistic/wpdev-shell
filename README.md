@@ -24,7 +24,7 @@ A simple CLI tool to spin up isolated WordPress development environments using D
 
 ```bash
 cd ~
-git clone https://github.com/YOUR_USERNAME/wpdev.git
+git clone https://github.com/Synistic/wpdev.git
 ```
 
 ### 2. Make the script executable
@@ -93,10 +93,35 @@ wpdev shell mysite
 
 ### Run WP-CLI commands
 
+Full WP-CLI access without needing to enter the container:
+
 ```bash
+# Plugin management
 wpdev wp mysite plugin list
+wpdev wp mysite plugin install woocommerce --activate
+wpdev wp mysite plugin deactivate akismet
+
+# Theme management
+wpdev wp mysite theme list
+wpdev wp mysite theme activate flavor
+
+# User management
 wpdev wp mysite user list
+wpdev wp mysite user create bob bob@example.com --role=editor
+
+# Database operations
+wpdev wp mysite db export backup.sql
+wpdev wp mysite db import backup.sql
+wpdev wp mysite search-replace 'https://old-domain.com' 'http://localhost:8085'
+
+# Cache & maintenance
+wpdev wp mysite cache flush
+wpdev wp mysite rewrite flush
+wpdev wp mysite cron event run --due-now
+
+# Options & config
 wpdev wp mysite option get siteurl
+wpdev wp mysite option update blogname "My Test Site"
 ```
 
 ### Delete an environment
@@ -169,19 +194,34 @@ When you create a site with port `8085`:
 3. Go to **Tools > Import**
 4. Use **All-in-One WP Migration** (pre-installed) to import your backup
 
+## Automatic Setup Features
+
+When creating a new environment, wpdev automatically:
+
+1. **Sets ACL permissions** - Your user gets full read/write access to all files while www-data remains the owner (required for Docker)
+2. **Configures git safe.directory** - Plugin directories are added to git's safe.directory, so you can work with git repos inside wp-content/plugins without permission errors
+
 ## Troubleshooting
 
 ### Permission issues with files
 
-The setup uses ACLs to grant both your user and www-data access to files. If you have issues:
+The setup uses ACLs to grant both your user and www-data access to files. If you need to manually fix an existing site:
 
 ```bash
+# Set ACL permissions for your user
+sudo setfacl -R -m u:$(whoami):rwX ~/wpdev/sites/mysite
+sudo setfacl -R -d -m u:$(whoami):rwX ~/wpdev/sites/mysite
+
 # Check current ACLs
 getfacl ~/wpdev/sites/mysite/html/
+```
 
-# Manually fix permissions (run inside container)
-wpdev shell mysite
-setfacl -R -m u:YOUR_UID:rwx /var/www/html
+### Git not showing repo in plugins folder
+
+If git shows "unsafe repository" errors, add the directory to safe.directory:
+
+```bash
+git config --global --add safe.directory ~/wpdev/sites/mysite/html/wp-content/plugins/your-plugin
 ```
 
 ### Container won't start

@@ -36,7 +36,14 @@ usage() {
     echo "  wpdev new mysite 8085"
     echo "  wpdev list"
     echo "  wpdev stop mysite"
+    echo ""
+    echo "WP-CLI Examples:"
     echo "  wpdev wp mysite plugin list"
+    echo "  wpdev wp mysite theme activate flavor"
+    echo "  wpdev wp mysite user create bob bob@example.com --role=editor"
+    echo "  wpdev wp mysite db export backup.sql"
+    echo "  wpdev wp mysite search-replace 'old.com' 'new.com'"
+    echo "  wpdev wp mysite cache flush"
 }
 
 cmd_new() {
@@ -118,6 +125,14 @@ EOF
     if [ $waited -ge $max_wait ]; then
         print_warning "Setup is taking longer than expected. Check logs with: wpdev logs $name"
     fi
+
+    # Set ACL permissions for current user (files are owned by www-data from Docker)
+    print_info "Setting file permissions..."
+    setfacl -R -m u:$(whoami):rwX "$site_dir"
+    setfacl -R -d -m u:$(whoami):rwX "$site_dir"
+
+    # Add plugin directories to git safe.directory
+    git config --global --add safe.directory "$site_dir/html/wp-content/plugins/*"
 
     echo ""
     print_success "WordPress environment '$name' is ready!"
