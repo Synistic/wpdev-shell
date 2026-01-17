@@ -1,0 +1,15 @@
+# Site instances (user data)
+sites/
+
+# Environment files (contain local config)
+.env
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
