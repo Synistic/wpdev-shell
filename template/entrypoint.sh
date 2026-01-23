@@ -93,10 +93,11 @@ echo "Setting file permissions..."
 chown -R www-data:www-data /var/www/html
 
 # Add ACL for host user (UID passed via environment)
+# Note: setfacl may fail on macOS-mounted volumes, which is fine - Docker Desktop handles permissions
 if [ -n "$HOST_UID" ]; then
     echo "Setting ACL permissions for host user (UID: $HOST_UID)..."
-    setfacl -R -m u:$HOST_UID:rwx /var/www/html
-    setfacl -R -d -m u:$HOST_UID:rwx /var/www/html  # default for new files
+    setfacl -R -m u:$HOST_UID:rwx /var/www/html 2>/dev/null || true
+    setfacl -R -d -m u:$HOST_UID:rwx /var/www/html 2>/dev/null || true
 fi
 
 # Execute the CMD (php-fpm)
